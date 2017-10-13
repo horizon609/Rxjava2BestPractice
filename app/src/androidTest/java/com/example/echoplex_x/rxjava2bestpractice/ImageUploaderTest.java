@@ -121,7 +121,6 @@ public class ImageUploaderTest {
         data3.index = 3;
         data3.setOriginalFileName("图片3");
         uploadResponse3.data = data3;
-
         Throwable exception = new RuntimeException("Boom!");
 
         Mockito.when(venusService.uploadImg(anyString(), anyString(), anyString(), any(RequestBody.class), any(MultipartBody.Part.class)))
