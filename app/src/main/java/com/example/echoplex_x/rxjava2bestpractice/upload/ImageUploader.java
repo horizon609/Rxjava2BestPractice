@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.example.echoplex_x.rxjava2bestpractice.bean.UploadResponseBean;
+import com.example.echoplex_x.rxjava2bestpractice.bean.UploadResponseImgBean;
 import com.example.echoplex_x.rxjava2bestpractice.bean.VenusInfo;
 import com.example.echoplex_x.rxjava2bestpractice.utils.UriUtils;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -66,6 +67,10 @@ public enum ImageUploader {
         this.venusService = venusService;
     }
 
+    public void setEs(ExecutorService es) {
+        this.es = es;
+    }
+
     /**
      * 上传单个文件
      */
@@ -82,17 +87,17 @@ public enum ImageUploader {
      *
      * @param fileUris
      */
-    public Observable<UploadResponseBean> upload(List<Uri> fileUris) {
+    public Observable<UploadResponseImgBean> upload(List<Uri> fileUris) {
         //1.获取图片服务器的URL和token
         final VenusInfo.DataBean[] dataBean = {null};
         return venusService.getVenusInfo(UploadConfig.getUploadUrl())
-                .concatMapIterable(venusInfo -> {
+                .flatMapIterable(venusInfo -> {
                     //保存VenusInfo
                     Log.d(TAG, "[venusInfo.code=" + venusInfo.code + ", venusInfo.data=" + venusInfo.getData());
                     dataBean[0] = venusInfo.getData();
                     return fileUris;
                 })
-                .concatMap(uri -> {
+                .flatMap(uri -> {
                     RequestBody fileBody = RequestBody.create(MEDIA_OBJECT_STREAM, new File(uri.getPath()));
                     String fileName = UriUtils.getFileName(uri);
                     if (TextUtils.isEmpty(fileName)) {
@@ -100,8 +105,26 @@ public enum ImageUploader {
                     }
                     MultipartBody.Part body = MultipartBody.Part.createFormData("image", fileName, fileBody);
                     RequestBody description = RequestBody.create(MultipartBody.FORM, "description");
+                    String finalFileName = fileName;
                     //2.开始上传图片
-                    return venusService.uploadImg(dataBean[0].getUrl(), dataBean[0].getToken(), String.valueOf(dataBean[0].getExpireTime()), description, body);
+                    if (dataBean[0] != null) {
+                        return venusService.uploadImg(dataBean[0].getUrl(), dataBean[0].getToken(), String.valueOf(dataBean[0].getExpireTime()), description, body)
+                                .onErrorReturn(throwable -> {
+                                    UploadResponseBean uploadError = new UploadResponseBean();
+                                    UploadResponseImgBean dataError = new UploadResponseImgBean();
+                                    dataError.setOriginalFileName(finalFileName);
+                                    uploadError.success = false;
+                                    uploadError.data = dataError;
+                                    return uploadError;
+                                }).filter(uploadResponseBean -> {
+                                    return uploadResponseBean.success;
+                                }).map(uploadResponseBean -> {
+                                    return uploadResponseBean.data;
+                                }).subscribeOn(Schedulers.from(es));
+                    } else {
+                        Log.e(TAG, "getVenusInfo接口返回为null");
+                        return null;
+                    }
                 });
 //                .subscribeOn(Schedulers.io())
 //                .observeOn(AndroidSchedulers.mainThread());

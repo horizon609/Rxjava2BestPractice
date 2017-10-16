@@ -78,7 +78,7 @@ public class ImageUploaderTest {
                 .thenReturn(Observable.just(uploadResponse3));
 
         ImageUploader.INSTANCE.setVenusService(venusService);
-        TestObserver<UploadResponseBean> observer = new TestObserver<>();
+        TestObserver<UploadResponseImgBean> observer = new TestObserver<>();
         ImageUploader.INSTANCE.upload(list).subscribe(observer);
 
         Mockito.verify(venusService, Mockito.times(1)).getVenusInfo(anyString());
@@ -86,7 +86,9 @@ public class ImageUploaderTest {
 //       verify(venusService, times(3)).uploadImg(anyString(), anyString(), anyString(), any(RequestBody.class), any(MultipartBody.Part.class));
 
         observer.assertNoErrors();
-        observer.assertResult(uploadResponse1, uploadResponse2, uploadResponse3);
+//        observer.assertResult(uploadResponse1.data, uploadResponse2.data, uploadResponse3.data);
+        observer.assertValueCount(3);
+        observer.assertValues(uploadResponse1.data,uploadResponse2.data,uploadResponse3.data);
         observer.assertComplete();
     }
 
@@ -129,16 +131,17 @@ public class ImageUploaderTest {
                 .thenReturn(Observable.just(uploadResponse3));
 
         ImageUploader.INSTANCE.setVenusService(venusService);
-        TestObserver<UploadResponseBean> observer = new TestObserver<>();
+        TestObserver<UploadResponseImgBean> observer = new TestObserver<>();
         ImageUploader.INSTANCE.upload(list).subscribe(observer);
 
         Mockito.verify(venusService, Mockito.times(1)).getVenusInfo(anyString());
-        Mockito.verify(venusService, Mockito.times(2)).uploadImg(eq("zz"), eq("zz"), eq("1"), any(RequestBody.class), any(MultipartBody.Part.class));
+        Mockito.verify(venusService, Mockito.times(3)).uploadImg(eq("zz"), eq("zz"), eq("1"), any(RequestBody.class), any(MultipartBody.Part.class));
 //       verify(venusService, times(3)).uploadImg(anyString(), anyString(), anyString(), any(RequestBody.class), any(MultipartBody.Part.class));
 
-        observer.assertNotComplete();
-        observer.assertError(exception);
-        observer.assertValue(uploadResponse1);
+        observer.assertComplete();
+        observer.assertNoErrors();
+        observer.assertValueCount(2);
+        observer.assertValues(uploadResponse1.data,uploadResponse3.data);
 
     }
 }
