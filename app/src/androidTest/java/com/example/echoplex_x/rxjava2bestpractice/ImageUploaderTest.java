@@ -77,9 +77,10 @@ public class ImageUploaderTest {
                 .thenReturn(Observable.just(uploadResponse2))
                 .thenReturn(Observable.just(uploadResponse3));
 
-        ImageUploader.INSTANCE.setVenusService(venusService);
+        ImageUploader imageUploader = new ImageUploader();
+        imageUploader.setVenusService(venusService);
         TestObserver<UploadResponseImgBean> observer = new TestObserver<>();
-        ImageUploader.INSTANCE.upload(list).subscribe(observer);
+        imageUploader.upload(list).subscribe(observer);
 
         Mockito.verify(venusService, Mockito.times(1)).getVenusInfo(anyString());
         Mockito.verify(venusService, Mockito.times(3)).uploadImg(eq("zz"), eq("zz"), eq("1"), any(RequestBody.class), any(MultipartBody.Part.class));
@@ -130,9 +131,10 @@ public class ImageUploaderTest {
                 .thenReturn(Observable.error(exception))
                 .thenReturn(Observable.just(uploadResponse3));
 
-        ImageUploader.INSTANCE.setVenusService(venusService);
+        ImageUploader imageUploader = new ImageUploader();
+        imageUploader.setVenusService(venusService);
         TestObserver<UploadResponseImgBean> observer = new TestObserver<>();
-        ImageUploader.INSTANCE.upload(list).subscribe(observer);
+        imageUploader.upload(list).subscribe(observer);
 
         Mockito.verify(venusService, Mockito.times(1)).getVenusInfo(anyString());
         Mockito.verify(venusService, Mockito.times(3)).uploadImg(eq("zz"), eq("zz"), eq("1"), any(RequestBody.class), any(MultipartBody.Part.class));

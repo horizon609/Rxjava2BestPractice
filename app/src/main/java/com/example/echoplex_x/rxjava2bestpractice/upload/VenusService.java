@@ -1,11 +1,14 @@
 package com.example.echoplex_x.rxjava2bestpractice.upload;
 
+import com.example.echoplex_x.rxjava2bestpractice.bean.ApiResponse;
+import com.example.echoplex_x.rxjava2bestpractice.bean.FeedbackBean;
 import com.example.echoplex_x.rxjava2bestpractice.bean.UploadResponseBean;
 import com.example.echoplex_x.rxjava2bestpractice.bean.VenusInfo;
 
 import io.reactivex.Observable;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Multipart;
@@ -30,4 +33,10 @@ public interface VenusService {
     @Multipart
     @POST
     Observable<UploadResponseBean> uploadImg(@Url String url, @Header("Authorization") String token, @Header("time") String expireTime, @Part("description") RequestBody description, @Part MultipartBody.Part body);
+
+    /**
+     * 提交反馈信息
+     */
+    @POST("api/feedback/v1")
+    io.reactivex.Observable<ApiResponse> commitFeedback(@Body FeedbackBean bean);
 }

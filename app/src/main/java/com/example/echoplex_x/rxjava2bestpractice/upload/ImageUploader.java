@@ -34,8 +34,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Created by wangting31 on 2017/10/12.
  */
 
-public enum ImageUploader {
-    INSTANCE;
+public class ImageUploader {
+//    INSTANCE;
     private final OkHttpClient mClient;
     private final int PIC_NUM = 5;
 
@@ -47,7 +47,7 @@ public enum ImageUploader {
     private VenusService venusService;
     private ExecutorService es = Executors.newFixedThreadPool(PIC_NUM, new ThreadFactoryBuilder().setNameFormat("Htttt-%d").build());
 
-    ImageUploader() {
+    public ImageUploader() {
         mClient = new OkHttpClient.Builder()
                 .readTimeout(60 * 1000, TimeUnit.MILLISECONDS)
                 .writeTimeout(60 * 1000, TimeUnit.MILLISECONDS)
