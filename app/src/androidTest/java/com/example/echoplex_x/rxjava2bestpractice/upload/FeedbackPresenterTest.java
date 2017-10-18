@@ -19,6 +19,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -56,10 +57,8 @@ public class FeedbackPresenterTest {
         List<Uri> list = new ArrayList<>();
         list.add(Uri.parse("aa"));
         feedbackPresenter.commitFeedbackInfo(3, "zz", "zz", list);
-        //在单侧结束前停一小会，否则无法执行完程序
-        Thread.currentThread().sleep(500);
 
-        verify(feedbackView,times(1)).commitComplete(true);
+        verify(feedbackView,timeout(100).times(1)).commitComplete(true);
 
     }
 
