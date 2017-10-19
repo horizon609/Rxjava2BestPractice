@@ -62,6 +62,8 @@ public class FeedbackPresenter {
                                         if (mView.isAlive()) mView.commitComplete(false);
                                     }
                             );
+                }, throwable -> {
+                    if(mView.isAlive()) mView.commitComplete(false);
                 });
     }
 
