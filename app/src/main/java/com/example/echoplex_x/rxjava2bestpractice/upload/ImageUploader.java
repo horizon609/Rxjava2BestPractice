@@ -40,7 +40,7 @@ public class ImageUploader {
     private final int PIC_NUM = 5;
 
     private static final String TAG = "ImageUploader";
-    private static final String BASE_URL = "http://pic.meituan.com";
+    private static final String BASE_URL = "http://pic.xxx.com";
     private static final String DEFAULT_PIC_NAME = "imagepick.jpg";
 
     private static final MediaType MEDIA_OBJECT_STREAM = MediaType.parse("application/octet-stream");
