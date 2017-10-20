@@ -40,31 +40,27 @@ public class FeedbackPresenter {
         mView.setUIStateToLoading();
         mImageUploader.upload(uriList)
                 .toList()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(list -> {
-                    Observable<ApiResponse> commitObservable = null;
-                    if (list == null) {
-                        commitObservable = mVenusService.commitFeedback(getFeedbackBean(null, phone, type, commitContent));
+                .toObservable()
+                .flatMap(list -> {
+                    if (list == null || list.size() == 0) {
+                        return mVenusService.commitFeedback(getFeedbackBean(null, phone, type, commitContent));
                     } else {
                         FeedbackBean bean = getFeedbackBean(list.size() > 0 ? list : null, phone, type, commitContent);
-                        commitObservable = mVenusService.commitFeedback(bean);
+                        return mVenusService.commitFeedback(bean);
                     }
-                    commitObservable.subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(apiResponse -> {
-                                        if (apiResponse.isSuccess()) {
-                                            if (mView.isAlive()) mView.commitComplete(true);
-                                        } else {
-                                            if (mView.isAlive()) mView.commitComplete(false);
-                                        }
-                                    }, throwable -> {
-                                        if (mView.isAlive()) mView.commitComplete(false);
-                                    }
-                            );
-                }, throwable -> {
-                    if(mView.isAlive()) mView.commitComplete(false);
-                });
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(apiResponse -> {
+                            if (apiResponse.isSuccess()) {
+                                if (mView.isAlive()) mView.commitComplete(true);
+                            } else {
+                                if (mView.isAlive()) mView.commitComplete(false);
+                            }
+                        }, throwable -> {
+                            if (mView.isAlive()) mView.commitComplete(false);
+                        }
+                );
     }
 
     @NonNull
